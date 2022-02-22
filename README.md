@@ -32,7 +32,9 @@ RAM.   This   program   was   co­developed   and   tested   under   the   follo
 openSuse 10.3 (and newer), Centos 5.2, Fedora Core 7, Ubuntu 8.10 as well as Mac OS X (10.5 &
 10.6). Make sure you have gcc installed.
 
-### ALGORITHM INPUT
+### ARGUMENT OPTIONS
+#### REQUIRED ARGUMENTS:
+
 
 As algorithm input we need a directory path where all the trajectories files along with it's model file is found.
 As it has to be implemented into GPCRmd database, the algorithm automatically matches each trajectory with its model file
@@ -49,6 +51,10 @@ The algorithm matches the pdb file with its trajectory using the dynamicsID. So 
 python automatization_MDpocket [path_to_directory]
 ```
 where path_to directory is the path where all the trajectories and its model files are stored.
+
+### OPTIONAL ARGUMENTS
+
+
 
 ### WORKFLOW
 
