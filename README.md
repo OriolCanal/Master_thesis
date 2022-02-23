@@ -47,10 +47,10 @@ Example:
 We can download the trajectories and the pdb files of the Beta-2 adrenergic receptor in complex with epinephrine from [here](https://submission.gpcrmd.org/dynadb/dynamics/id/117/).
 We save the files in a directory. We can see that all those files are have the same format:<br />
 [trj/dyn]_[dynamicsID].extension <br />
-The algorithm matches the pdb file with its trajectory using the dynamicsID. So to run the algorithm we just need to execute the following command:
+The algorithm matches the pdb file with its trajectory using the dynamicsID. So to run the algorithm we just need to execute the following command supposing that we are on the current directory where the pdb files and the trajectories are stored (if not it has to be changed the . for the directory path where the files are found):
 
 ```console
-python automatization_MDpocket [path_to_directory]
+python automatization_MDpocket -d .
 ```
 where path_to directory is the path where all the trajectories and its model files are stored. Then the script will automaticaly detect the pockets for the different trajectoris of the Beta-2 adrenergic receptor.
 
@@ -65,7 +65,7 @@ The trajectory is reduced in order to decrease the computational cost of the alg
 ##### -c, --cpu:
 Number of CPUs used when computing the descriptors of each pocket. Using more CPUs will reduce the computational time of the algorithm. Default = it will use all the CPUs of your computer. If you don't want to use all of them you can specify the number of cpus as 3 using:
 ```console
-python automatization_MDpocket [path_to_directory] -c 3
+python automatization_MDpocket -d [path_to_directory] -c 3
 ```
 
 ### WORKFLOW
