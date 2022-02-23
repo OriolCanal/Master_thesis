@@ -47,7 +47,7 @@ Example:
 We can download the trajectories and the pdb files of the Beta-2 adrenergic receptor in complex with epinephrine from [here](https://submission.gpcrmd.org/dynadb/dynamics/id/117/).
 We save the files in a directory. We can see that all those files are have the same format:<br />
 [trj/dyn]_[dynamicsID].extension <br />
-The algorithm matches the pdb file with its trajectory using the dynamicsID. So to run the algorithm we just need to execute the following command supposing that we are on the current directory where the pdb files and the trajectories are stored (if not it has to be changed the . for the directory path where the files are found):
+The algorithm matches the pdb file with its trajectory using the dynamicsID. So, to run the algorithm we just need to execute the following command supposing that the pdb files and trajectory files are on the working directory  (if not it has to be changed the . for the directory path where the files are found):
 
 ```console
 python automatization_MDpocket -d .
