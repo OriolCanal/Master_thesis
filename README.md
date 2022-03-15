@@ -11,6 +11,7 @@ This guide describes how to use the automatization of MDpocket for pocket detect
 * [AmberTools](https://ambermd.org/AmberTools.php)
 * [GROMACS/5.1.2](https://manual.gromacs.org/documentation/5.1.2/install-guide/)
 * [fpocket](http://sourceforge.net/projects/fpocket). This will provide you a file like fpocket-src-1.0.tgz.
+* [Miniconda3/4.7.10](https://repo.anaconda.com/miniconda/) 
 In order to install fpocket now, use the following series of commands in a command line:
 ```console
 tar -xzf fpocket-src-2.0.tgz
