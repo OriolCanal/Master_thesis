@@ -20,7 +20,7 @@ make
 make test
 ```
 If the make and make test command yield no errors, your installation can be completed by
-typing (if you have administrators rights :
+typing (if you have administrators rights) :
 ```console
 sudo make install
 ```
