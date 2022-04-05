@@ -35,9 +35,14 @@ openSuse 10.3 (and newer), Centos 5.2, Fedora Core 7, Ubuntu 8.10 as well as Mac
 
 ### ARGUMENT OPTIONS
 
+The algorithm can work in 2 different ways:
+
+* Automatically detecting the pdb file and the model file from the directory. It can be used if the trajectory file and the pdb file are named using the GPCRmd database format: [trj/dyn]_[dynamicsID].extension. If you want to use the algorithm this way you will need to use the argument -d.
+* Parsing the pdb and the trajectory file. If you want to use the algorithm this way you will need to use the arguments -t [trajectory_filename] -p [pdb_filename]
+
 #### REQUIRED ARGUMENTS
 
-##### -i, --input_directory: 
+##### -d, --input_directory: 
 
 As algorithm input we need a directory path where all the trajectories files along with it's model file is found.
 As it has to be implemented into GPCRmd database, the algorithm automatically matches each trajectory with its model file
@@ -48,12 +53,18 @@ Example:
 We can download the trajectories and the pdb files of the Beta-2 adrenergic receptor in complex with epinephrine from [here](https://submission.gpcrmd.org/dynadb/dynamics/id/117/).
 We save the files in a directory. We can see that all those files are have the same format:<br />
 [trj/dyn]_[dynamicsID].extension <br />
-The algorithm matches the pdb file with its trajectory using the dynamicsID. So, to run the algorithm we just need to execute the following command supposing that the pdb files and trajectory files are on the working directory  (if not it has to be changed the . for the directory path where the files are found):
+The algorithm matches the pdb file with its trajectory using the dynamicsID. So, to run the algorithm we just need to execute the following command supposing that the pdb files and trajectory files are on the working directory  (the algorithm only works if we execute the algorithm on the current directory):
 
 ```console
 python automatization_MDpocket -d .
 ```
-where path_to directory is the path where all the trajectories and its model files are stored. Then the script will automaticaly detect the pockets for the different trajectoris of the Beta-2 adrenergic receptor.
+where path_to_directory is the path where all the trajectories and its model files are stored. Then the script will automaticaly detect the pockets for the different trajectoris of the Beta-2 adrenergic receptor.
+
+##### -t, --trajectory_file / -p, --pdb_file:
+The second manner to run the algorithm is indicating where the trajectory file and the pdb file can be found. The trajectory file should have the xtc/dcd format. 
+Example:
+```
+python automatization_MDpocket -t [path_to_trajectory_filename] -p [path_to_pdb_file]
 
 #### OPTIONAL ARGUMENTS
 
@@ -84,4 +95,33 @@ python automatization_MDpocket -d [path_to_directory] -c 3
 * Clustering coordinates into pockets: Using density-based spatial clustering of applications with noise (DBSCAN) algorithm the coordinates are clustered into different pockets. The idea behind DBSCAN is that a point belongs to a cluster if it is close to many points from that cluster. In addition, it is albe to detect outliers (coordinates that are far from the others) allowing not to take into consideration coordinate points that are outliers. The set of coordinate points that are creating the pocket are stored in a pdb file. The different pdb files with the coordinates of each pocket are stored in DBSCANclustering_coordinates_pdb_TrajecoryFileName.
 * 2nd run of MDpocket: The pdb files obtained in the previous step will be used to run for a second time MDpocket in order to obtain the descriptors of each pocket (Volume, hydrophobicity score...) that will be stored in the descriptorPocekts_TrajectoryFileName. In addition, it will be create a graphic representing the Volume of the pocket along the trajectory and they will be stored in Volume_graphic_TrajectoryFileName.
 
-* 
+## OUTPUT
+
+* DBSCANclustering_coordinates_pdb_TrajectoryName. This directory contains pdb files of the different pockets found in the trajectory. If you want to load all the pockets on VMD just open the TKconsole and type this command on the DBSCANclustering_coordinates directory:
+```
+set pdblist [glob *pdb]
+foreach pdb $pdblist {
+mol new $pdb
+}
+```
+
+If you also open the trajectory, this will allow you to see all the pockets found and see which pocket is the one that you are more interested in.
+
+* MDpocket_Voroni_Vertices_TrajectoryName: In this directory you can find the trajectory file of the pockets during the trajectory. Using these files you will be able to see the movement of the pocket. Be careful, VMD does not read this file, as from one snapshot to the other a different number and type of Voronoi vertices can be part of the model.
+* MDpocket_atoms_TrajectoryName: Here, you can find pdb files containing all receptor atoms defining the binding pocket in each frame analyzed. 
+* descriptorPockets_TrajectoryName: Last but not least, here you will find the descriptors of each pocket (Volume, mean local hydrophobic density, mean alpha sphere solvent accessibility...). 
+This output file can be easily analyzed using R, gnuplot or other suitable software. An example R output for the pocket volume would be like:
+```
+r=read.table("pocket_num_0_descriptors.txt",h=T)
+ylim=c(400,1200)
+plot(r[,"pock_volume"],ty='l',ylim=ylim,main="",xlab="",ylab="")
+par(new=T)
+plot(smooth.spline(r[,"pock_volume"],df=40),col="red",lwd=3,ylim=ylim,ty
+="l",xlab="snapshot",ylab="volume")
+```
+With this, you should be able to see if the volume of the pocket increases or decreases during the trajectory.
+However, the most interesting descriptor of this file is the local hydrophobic density. To obtain a druggability score in MDpocket, you need to run MDpocket using the -S flag. However, using the -S flag, less pockets are detected losing information about transient pockets. For this reason the -S flag is not used in this algorithm and consequently we are not geting the druggabilit score. 
+The formula used to obtain the druggability score is the following one: 
+![Druggability score formula](/home/oriolc/Desktop/master_thesis/automatization_mdpocket_markdown/image.png "Druggability score formula")
+
+
