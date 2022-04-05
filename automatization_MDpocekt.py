@@ -29,55 +29,71 @@ from bokeh.models.widgets import Tabs, Panel
 
 #begin_time = datetime.now()
 parser = argparse.ArgumentParser(description = "Program to autmatically detect pockets and its decriptors over MD simulations using MDpocket.")
-parser.add_argument ("-d", "--input_directory", action = "store", required = True , help="directory where the pdb files and trajectories are stored")
-parser.add_argument ("-i", "--isovalue", action = "store", required = False, default = 3, type = float, help = "MDpocket isovalue to extract pockets (higher isovalue will consider more conserved pockets).")
+group = parser.add_mutually_exclusive_group(required=True)
+group.add_argument ("-d", "--input_directory", action = "store" ,help="directory where the pdb files and trajectories are stored")
+group.add_argument ("-t", "--trajectory_file", action = "store", help ="trajectory filename (xtc or dcd formats)" )
+parser.add_argument ("-p", "--pdb_file", action = "store", required = False, help = "model pdb file of the protein") 
+parser.add_argument ("-i", "--isovalue", action = "store", required = False, default = 2.5, type = float, help = "MDpocket isovalue to extract pockets (higher isovalue will consider more conserved pockets). Recommended isovalue between 2 (transient) and 5 (more conserved).")
 parser.add_argument ("-s", "--pdb_step", action = "store", required = False, default = "5", type = str , help = "Reduction of the molecular dynamics frames to decrease the computation time" )
-parser.add_argument ("-c", "--cpu", action = "store", required = False, default = 0, type = int, help = "number of cpus to use in the parallization step.")
-
+parser.add_argument ("-c", "--cpu", action = "store", required = False, default = 0, type = int, help = "Number of cpus to use in the parallization step.")
+parser.add_argument ("-a", "--structural_alignment", action = "store", required = False, choices = ['yes', 'no'], default = 'no', help ="if the trajectory is not previously aligned, include -a yes")
 args = parser.parse_args()
 
 
+
 input_directory = args.input_directory
+print (input_directory)
 isovalue = args.isovalue
 pdb_step = args.pdb_step
 cpu = args.cpu
+alignment = args.structural_alignment
+input_trajectory_file= args.trajectory_file
+input_topology_filename = args.pdb_file
 
 def matching_pdb_traj(directory):
+
   """This function matches de model file (pdb) with its trajectory in a directory."""
   directory = str(directory)
-  #Find the pdb files in the directory
+  trajectories_analysed = []
+  #Find the pdb files in the  directory
   pdb_files = [f for f in os.listdir(directory) if f.endswith(".pdb")]
   #Find trajectory files ("xtc" or "dcd") in the directory
   trajectory_files = [f for f in os.listdir(directory) if f.endswith(".xtc") or f.endswith(".dcd")]
+  trajectories_folder_analysed =  [f for f in os.listdir(directory) if f.endswith("_mdpocket")]
+  for trajectory_folder in trajectories_folder_analysed:
+    trajectory = trajectory_folder.replace("_mdpocket","")
+    trajectories_analysed.append(trajectory)
+    
+  for trajectory_analysed in trajectories_analysed:
+    trajectory_files.remove(trajectory_analysed)
   #print(pdb_files)
   #dictionary where pdb will be matched with the trajectory
   id_dic = {}
-
+  #print (trajectory_files)
   for f in pdb_files:
-    pdbid_regex=re.compile(r"dyn_[0-9]+")
-    pdb_id = pdbid_regex.search(f)
-    #print (pdb_id[0])
-    pdb_num_regex = re.compile(r"[0-9]+")
-    pdb_num = pdb_num_regex.search(pdb_id[0])
-    #print(pdb_num[0])
-
+    if os.path.isfile(f):
+      pdbid_regex=re.compile(r"dyn_[0-9]+")
+      pdb_id = pdbid_regex.search(f)
+      #print (pdb_id[0])
+      pdb_num_regex = re.compile(r"[0-9]+")
+      pdb_num = pdb_num_regex.search(pdb_id[0])
+      #print(pdb_num[0])
+      if f not in id_dic:
+          id_dic[f] = list()
     for g in trajectory_files:
-      #print( "trajectory file:", g)
-      trajid_regex = re.compile(r"trj_[0-9]+")
-      traj_id = trajid_regex.search(g)
-      traj_num_regex = re.compile (r"[0-9]+")
-      traj_num = traj_num_regex.search(traj_id[0])
-      #print (traj_num[0])
+      if os.path.isfile(g):
+        #print( "trajectory file:", g)
+        trajid_regex = re.compile(r"trj_[0-9]+")
+        traj_id = trajid_regex.search(g)
+        traj_num_regex = re.compile (r"[0-9]+")
+        traj_num = traj_num_regex.search(traj_id[0])
+        #print (traj_num[0])
 
       if pdb_num[0] == traj_num[0]:
-        if f not in id_dic:
-          id_dic[f] = list()
-        id_dic[f].append(g)
+          id_dic[f].append(g)
       
   #print(id_dic)
   return(id_dic)
-
-
 
 
 
@@ -188,19 +204,22 @@ def creteMDpocket_input(
   with the name: md + number of the snapshot in the simulation + .pdb 
   The pdb files created will only contain the protein"""
 
-  # name of the trajectory file aligned
-  #### UNCOMMENT THE 9 LINES BELOW IF STRUCTURAL ALIGNMENT OF THE TRAJECTORY IS NEEDED. 
-  #input_trajectory_aligned = "aligned_" + input_trajectory_filename 
+
+  if alignment == 'yes':
+    # name of the trajectory file aligned
+    #### UNCOMMENT THE 9 LINES BELOW IF STRUCTURAL ALIGNMENT OF THE TRAJECTORY IS NEEDED. 
+    input_trajectory_aligned = "aligned_" + input_trajectory_filename 
   
   
-  #print("PERFORMING THE STRUCTURAL ALIGNMENT OF THE TRAJECTORY")
-  #first let's do a structural alignment. This step is necessary (reasons indicated on the MDpocket paper.) 
-  #p = subprocess.Popen(['gmx', 'trjconv',
-  #                      '-s', input_topology_filename, '-f', input_trajectory_filename,
-  #                      '-o', input_trajectory_aligned, '-fit', 'rot+trans'],
-  #                      stdin=subprocess.PIPE)
-  #p.communicate(b'3\n0\n') # alignment on c-alpha, output everything
-  #p.wait()
+    print("PERFORMING THE STRUCTURAL ALIGNMENT OF THE TRAJECTORY")
+    #first let's do a structural alignment. This step is necessary (reasons indicated on the MDpocket paper.) 
+    p = subprocess.Popen(['gmx', 'trjconv',
+                          '-s', input_topology_filename, '-f', input_trajectory_filename,
+                          '-o', input_trajectory_aligned, '-fit', 'rot+trans'],
+                          stdin=subprocess.PIPE)
+    p.communicate(b'3\n0\n') # alignment on c-alpha, output everything
+    p.wait()
+    input_trajectory_filename = input_trajectory_aligned
 
 
 
@@ -239,7 +258,7 @@ def creteMDpocket_input(
                         '-s', input_topology_filename, '-f', input_trajectory_filename,
                         '-sep', '-nzero', '1', '-skip', pdb_step, '-o', snapshots_output],
                        stdin=subprocess.PIPE)
-  p.communicate(b'1\n') # We only obtain pdb snapshots of the protein
+  p.communicate(b'Protein\n') # We only obtain pdb snapshots of the protein
   p.wait()
 
   
@@ -425,7 +444,7 @@ def applying_DBSCAN(
   #paralelization of the run_mdpocket_2nd function to make the slowest step of the algorithm faster. 
   iterable = range(0,int(num_pocketID)+1)
   if cpu == 0:
-    pool_obj = multiprocessing.Pool()
+    pool_obj = multiprocessing.Pool(6)
   else:
     pool_obj = multiprocessing.Pool(cpu)
 
@@ -490,14 +509,14 @@ def applying_DBSCAN(
     real_frames = [element * int(pdb_step) for element in frames]
     volume = list(map(float, descriptors_data['pock_volume']))
 
-    # The pocket will be considered as transient if in 5 consecutive frames the volume of the pocket = 0.
+    # The pocket will be considered as transient if in 10 consecutive frames the volume of the pocket = 0.
     transient = False
-    for i,j,q,k,l in zip(volume, volume[1:],volume[2:],volume[3:],volume[4:]):
+    for i,j,q,k,l,m,n,o,p,q in zip(volume, volume[1:],volume[2:],volume[3:],volume[4:],volume[5:],volume[6:],volume[7:],volume[8:],volume[9:]):
 
-      #checking if 5 consecutive volumes = 0
-      if (i + j + q + k + l) == 0:
+      #checking if 10 consecutive volumes = 0
+      if (i + j + q + k + l+m+n+o+p+q) == 0:
         transient = True
-        break #If 5 consecutive 0 are found, we don't need to continue the loop, the pocket will be transient.
+        break #If 10 consecutive 0 are found, we don't need to continue the loop, the pocket will be transient.
 
     #Average volume of the pocket over the frames to add in the plot if it is needed.
     average_volume = round(sum(volume)/len(volume),2)
@@ -749,6 +768,8 @@ def pockets (
   os.system(cmd_general_directory)
   cmd_mv_mdpocket_General = "mv mdpocket ./" + general_directory
   os.system(cmd_mv_mdpocket_General)
+  cmd_traj_to_initial_place = "mv ./" + general_directory + "/" + input_trajectory_filename + " ."
+  os.system(cmd_traj_to_initial_place)
   #print(datetime.now() - begin_time)
 
 
@@ -768,16 +789,24 @@ def get_headlines_gridfile (grid_filename = str):
   return(header_lines)
 
 
-dictionary = matching_pdb_traj(input_directory)
 
-for model, trajectories in dictionary.items():
-  for trajectory in trajectories:
+if __name__ == "__main__":
+  if input_directory != None:
+    dictionary = matching_pdb_traj(input_directory)
+    for model, trajectories in dictionary.items():
+      for trajectory in trajectories:
+        pockets(
+          str(model),
+          str(trajectory),
+          isovalue,
+          pdb_step)
+
+  else:
     pockets(
-      str(model),
-      str(trajectory),
-      isovalue,
-      pdb_step)
-
+          str(input_topology_filename),
+          str(input_trajectory_file),
+          isovalue,
+          pdb_step)
 
 
 
