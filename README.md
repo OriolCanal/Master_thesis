@@ -107,6 +107,19 @@ mol new $pdb
 
 If you also open the trajectory, this will allow you to see all the pockets found and see which pocket is the one that you are more interested in.
 
+
+* snapshots_TrajectoryName: in this folder will be stored the pdb files of each frame of the trajectory as it is the required input format for MDpocket.
+* mdpocket: Here are stored the files created by the first run of MDpocket.  
+    * mdpout_dens.dx -> A grid is superimposed to all alpha spheres of all snapshots and the number of alpha spheres around each grid point is counted. In order to see more clearly it is recommended to change the representation (using VMD going to Graphics -> Representations). Here you can change the isovalue (higher more conserved pockets). Here an image of how to change representations to see pockets on MD trajectory usng VMD:
+    ![VMD conf](https://user-images.githubusercontent.com/57498211/161777199-65b3a424-e69f-4e31-b19c-2afd30fa8803.png) 
+    * mdpout_freq.dx -> This file is very similar to the previous grid file. Here the grid contains a measure of frequency of how many times the pocket was open during a MD trajectory averaged by the number of snapshots. Thus, this gives a range of possible iso-values between 0-1. 
+    * mdpout_dens_iso_8.pdb ->This file contains all grid points having 3 or more Voronoi Vertices in the 8A3 volume around the grid  point for each snapshot. 
+    * mdpout_freq_iso_0_5.pdb : This is similar to the previous pdb file, just being produced on the frequency grid with a cutoff of 0.5.
+    
+
+
+
+
 * MDpocket_Voroni_Vertices_TrajectoryName: In this directory you can find the trajectory file of the pockets during the trajectory. Using these files you will be able to see the movement of the pocket. Be careful, VMD does not read this file, as from one snapshot to the other a different number and type of Voronoi vertices can be part of the model.
 * MDpocket_atoms_TrajectoryName: Here, you can find pdb files containing all receptor atoms defining the binding pocket in each frame analyzed. 
 * descriptorPockets_TrajectoryName: Last but not least, here you will find the descriptors of each pocket (Volume, mean local hydrophobic density, mean alpha sphere solvent accessibility...). 
@@ -120,8 +133,21 @@ plot(smooth.spline(r[,"pock_volume"],df=40),col="red",lwd=3,ylim=ylim,ty
 ="l",xlab="snapshot",ylab="volume")
 ```
 With this, you should be able to see if the volume of the pocket increases or decreases during the trajectory.
-However, the most interesting descriptor of this file is the local hydrophobic density. To obtain a druggability score in MDpocket, you need to run MDpocket using the -S flag. However, using the -S flag, less pockets are detected losing information about transient pockets. For this reason the -S flag is not used in this algorithm and consequently we are not geting the druggabilit score. 
-The formula used to obtain the druggability score is the following one: 
-![Druggability score formula](/home/oriolc/Desktop/master_thesis/automatization_mdpocket_markdown/image.png "Druggability score formula")
+
+* Volume_graphic_TrajectoryName: Here there is a graphical representation of the volume of each pocket along the trajectory in order to easily see the opening and clousure of the pocket if it is required.
+* Final_OUTPUT_TrajectoryName: Finally a txt file is created with the most important features of each pocket in order to easily detect the most interesting pockets detected over the trajectory. In this file we can see the volume, average volume,  atoms, the mean local hydrophobic density, average Polarity score and the average hydrophobicity score which are the descriptors used for MDpocket to calculate the druggability score of each pocket.
+
+## ADDITIONAL INFORMATION
+
+* DRUGGABILITY SCORE:
+To obtain a druggability score in MDpocket, you need to run MDpocket using the -S flag. However, using the -S flag, less pockets are detected and consequently we are losing information about transient pockets. For this reason the -S flag is not used in this algorithm and consequently we are not geting the druggabilit score. 
+However, the formula used to obtain the druggability score is the following one (obtained from [here](https://www.researchgate.net/publication/45504065_Understanding_and_Predicting_Druggability_A_High-Throughput_Method_for_Detection_of_Drug_Binding_Sites): 
+
+
+![Druggability score formula](https://user-images.githubusercontent.com/57498211/161771891-dc589b56-2b9e-4658-9df1-343995802bd7.png)
+![Descriptors_druggability_score](https://user-images.githubusercontent.com/57498211/161772411-d3b6b0fa-2026-4f48-ac2f-b621f4274825.png)
+
+However this formula can't be applied to the pocket descriptors as the characterization step is delimiting the pocket by a user input, calculating a druggabiity score isn't relevant as the score hasn't been trained on such input, it is thus deactivated.
+However, an alternative option given by the creators of MDpocket is to use the mean local hydrophobic density as an aproximation of the druggability score as it is the descriptor that contributes more to the druggability score. The mean local hydrophobic density of the binding site is considered as the most predictive descriptor as it combines the size and spatial distrubution of hydrophobic agglomerations into a single number So, the mean local hydrophobic density is a predictive descriptor of interest in order to know the druggability of the pocket (the higher the more druggable).
 
 
