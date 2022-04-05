@@ -65,6 +65,7 @@ The second manner to run the algorithm is indicating where the trajectory file a
 Example:
 ```
 python automatization_MDpocket -t [path_to_trajectory_filename] -p [path_to_pdb_file]
+```
 
 #### OPTIONAL ARGUMENTS
 
@@ -110,11 +111,11 @@ If you also open the trajectory, this will allow you to see all the pockets foun
 
 * snapshots_TrajectoryName: in this folder will be stored the pdb files of each frame of the trajectory as it is the required input format for MDpocket.
 * mdpocket: Here are stored the files created by the first run of MDpocket.  
-    * mdpout_dens.dx -> A grid is superimposed to all alpha spheres of all snapshots and the number of alpha spheres around each grid point is counted. In order to see more clearly it is recommended to change the representation (using VMD going to Graphics -> Representations). Here you can change the isovalue (higher more conserved pockets). Here an image of how to change representations to see pockets on MD trajectory usng VMD:
+    * mdpout_dens.dx: A grid is superimposed to all alpha spheres of all snapshots and the number of alpha spheres around each grid point is counted. In order to see more clearly it is recommended to change the representation (using VMD going to Graphics -> Representations). Here you can change the isovalue (higher more conserved pockets). Here an image of how to change representations to see pockets on MD trajectory usng VMD:
     ![VMD conf](https://user-images.githubusercontent.com/57498211/161777199-65b3a424-e69f-4e31-b19c-2afd30fa8803.png) 
-    * mdpout_freq.dx -> This file is very similar to the previous grid file. Here the grid contains a measure of frequency of how many times the pocket was open during a MD trajectory averaged by the number of snapshots. Thus, this gives a range of possible iso-values between 0-1. 
-    * mdpout_dens_iso_8.pdb ->This file contains all grid points having 3 or more Voronoi Vertices in the 8A3 volume around the grid  point for each snapshot. 
-    * mdpout_freq_iso_0_5.pdb : This is similar to the previous pdb file, just being produced on the frequency grid with a cutoff of 0.5.
+    * mdpout_freq.dx: This file is very similar to the previous grid file. Here the grid contains a measure of frequency of how many times the pocket was open during a MD trajectory averaged by the number of snapshots. Thus, this gives a range of possible iso-values between 0-1. 
+    * mdpout_dens_iso_8.pdb: This file contains all grid points having 3 or more Voronoi Vertices in the 8A3 volume around the grid  point for each snapshot. 
+    * mdpout_freq_iso_0_5.pdb: This is similar to the previous pdb file, just being produced on the frequency grid with a cutoff of 0.5.
     
 
 
