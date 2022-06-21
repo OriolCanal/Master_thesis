@@ -1,0 +1,66 @@
+===========================
+DEPENDENCIES  MDPOCKET            :
+===========================
+1: In order to install MDpocket 3 you need to install libnetcdf & libstdc++ 
+libraries
+
+
+===========================
+INSTALLATION INSTRUCTIONS :
+===========================
+
+1: Installing the MDpocket release :
+
+> untar, make, make test, make install < 
+
+Please untar the fpocket-src-3.0.tgz file in a local folder by typing and move
+to the extracted folder :
+
+>>> tar -xzf fpocket-src-3.0.tgz
+>>> cd fpocket-src-3.0/
+
+Next, you have to compile and test the distribution. You do NOT
+need root priveledges for this operation : 
+
+>>> make
+
+If no errors occur during the compilation and during the test, you
+can install fpocket in your distribution by typing the following line. 
+Be careful, for this you might need root priveledges. 
+If you want to put the executables whereever you want, you can find 
+them in the fpocket-src-3.0/bin directory. Else, for final installation
+type :
+
+>>> make install
+
+You should be able to run fpocket, dpocket and tpocket from everywhere.
+
+-------------------------------------------------------------------------------
+2: Uninstalling MDpocket :
+
+> make uninstall <
+
+In order to uninstall fpocket, dpocket, tpocket and corresponding manual 
+entries simply go to your fpocket-src-1.0 directory and type : 
+
+>>> make uninstall
+
+---------------------------------------------------------------------------
+3: Installing GROMACS/5.1.2
+
+To install GROMACS/5.1.2, first download the tar.gx file from:
+ftp://ftp.gromacs.org/pub/gromacs/gromacs-5.1.2.tar.gz
+
+Then execute the following commands:
+
+tar xfz gromacs-5.1.2.tar.gz
+cd gromacs-5.1.2
+mkdir build
+cd build
+cmake .. -DGMX_BUILD_OWN_FFTW=ON -DREGRESSIONTEST_DOWNLOAD=ON
+make
+make check
+sudo make install
+source /usr/local/gromacs/bin/GMXRC
+
+-------------------------------------------------------------------------
