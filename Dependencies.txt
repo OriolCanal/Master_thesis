@@ -64,3 +64,21 @@ sudo make install
 source /usr/local/gromacs/bin/GMXRC
 
 -------------------------------------------------------------------------
+4. install Miniconda 4.7.10:
+
+to avoid errors create a conda directory:
+mkdir conda
+cd ./conda
+
+and proceed with the installation:
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+
+Create a conda environment:
+conda create --name  YOUR_CONDA_ENVIRONMENT
+conda activate YOUR_CONDA_ENVIRONMENT
+
+
+finally install Ambertools in your conda environment:
+
+conda install -c conda-forge ambertools=22 compilers
