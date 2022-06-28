@@ -37,6 +37,8 @@ parser.add_argument ("-i", "--isovalue", action = "store", required = False, def
 parser.add_argument ("-s", "--pdb_step", action = "store", required = False, default = "5", type = str , help = "Reduction of the molecular dynamics frames to decrease the computation time" )
 parser.add_argument ("-c", "--cpu", action = "store", required = False, default = 0, type = int, help = "Number of cpus to use in the parallization step.")
 parser.add_argument ("-a", "--structural_alignment", action = "store", required = False, choices = ['yes', 'no'], default = 'no', help ="if the trajectory is not previously aligned, include -a yes")
+parser.add_argument ("-e", "--epsilon", action = "store", required = False, default = 1.5, type = float, help = "epsilon value to run MDpocket")
+parser.add_argument ("-m", "--min_points", action = "store", required = False, default = 8, type = int, help = "minPoints value to run MDpocket") 
 args = parser.parse_args()
 
 
@@ -49,7 +51,9 @@ cpu = args.cpu
 alignment = args.structural_alignment
 input_trajectory_file= args.trajectory_file
 input_topology_filename = args.pdb_file
-
+epsilon = args.epsilon
+minpoints = args.min_points
+                     
 def matching_pdb_traj(directory):
 
   """This function matches de model file (pdb) with its trajectory in a directory."""
@@ -372,7 +376,7 @@ def applying_DBSCAN(
 
 
   #apply DBSCAN to the data. Here the important parameters that can be changed are the eps and the min samples
-  model = DBSCAN(eps=1.5, min_samples=8)
+  model = DBSCAN(eps= epsilon, min_samples= minpoints)
   model.fit_predict(data)
   pred = model.fit_predict(data)
 
