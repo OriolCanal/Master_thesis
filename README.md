@@ -81,6 +81,20 @@ Number of CPUs used when computing the descriptors of each pocket. Using more CP
 python automatization_MDpocket -d [path_to_directory] -c 3
 ```
 
+##### -e, --epsiolon
+Epsilon value to run MDpocket. This parameter allows to adjusting the distance between two points to be considered the same pocket. Recommended between 1.5-4.
+
+Example:
+
+```console
+python automatization_MDpocket -d -t [path_to_trajectory_filename] -p [path_to_pdb_file] -c 5 -s 5 -i 4 -e 2
+```
+##### -m, --minpoints:
+This parameter allows adjusting the minimum number of points that a cluster should have in order to be considered a pocket and not an outlier. For example taking a minpoints value of 10, in such case the algorithm will cosider the pockets with less than 10 points as outliers and will not analyse them saving computational time. 
+
+#####
+
+
 ### WORKFLOW
 
 * Matching pdb files with trajectories: First of all as mentioned before the algorithm matches each trajectory with its corresponding model file (pdb).
